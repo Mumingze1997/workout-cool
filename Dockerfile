@@ -11,9 +11,9 @@ RUN pnpm install --frozen-lockfile
 
 # Build the app
 FROM base AS builder
+COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/prisma ./prisma
-COPY . .
 COPY .env.example .env
 
 RUN pnpm run build
@@ -30,7 +30,7 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/data ./data
 
 COPY scripts /app/scripts
-RUN chmod +x /app/scripts/setup.sh
+RUN sed -i 's/\r$//' /app/scripts/setup.sh && chmod +x /app/scripts/setup.sh
 
 ENTRYPOINT ["/app/scripts/setup.sh"]
 
